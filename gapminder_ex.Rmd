@@ -1,12 +1,10 @@
 
 Livy KMG
 
-#Gapminder Exercise
+#Gapminder Exercise 
 
 The Gapminder website contains over 500 data sets with information about
- the world's population. 
- 
- Your task is to download a data set of your choice
+ the world's population.  Your task is to download a data set of your choice
  and create 2-5 plots that make use of the techniques from Lesson 3.
 
  You might use a simple histogram, a boxplot split over a categorical variable,
@@ -28,13 +26,6 @@ The Gapminder website contains over 500 data sets with information about
  Copy and paste all of the code that you used for
  your investigation, and submit it when you are ready.
 
-The following command may be helpful for some of the Gapminder Data sets, once it's been converted to csv format:
-  
-read.csv('data.csv', header = T, row.names = 1, check.names = F). 
-
-You may want to look at additional function arguments in the help file for the read.table() family for additional tools that can help you read in data.
-
-If you want to exchange the rows and columns of your dataframe, it will also be useful to know the transpose function, t().
 
 #Source of the Gapminder Data chosen
 http://www.gapminder.org/data/
