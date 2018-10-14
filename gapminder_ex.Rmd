@@ -1,9 +1,4 @@
----
-output: html_notebook
-editor_options: 
-  chunk_output_type: inline
----
----
+
 Livy KMG
 
 #Gapminder Exercise
@@ -21,7 +16,6 @@ The Gapminder website contains over 500 data sets with information about
        3. links to the images of your plots
 
  You can save images by using the ggsave() command.
- ggsave() will save the last plot created.
  For example...
                   qplot(x = price, data = diamonds)
                   ggsave('priceHistogram.png')
@@ -39,9 +33,8 @@ read.csv('data.csv', header = T, row.names = 1, check.names = F).
 You may want to look at additional function arguments in the help file for the read.table() family for additional tools that can help you read in data.
 
 If you want to exchange the rows and columns of your dataframe, it will also be useful to know the transpose function, t().
- ====================================================================================
 
-#Gapminder Data
+#Source of the Gapminder Data chosen
 http://www.gapminder.org/data/
 https://docs.google.com/spreadsheets/d/1gJLA2BebcFBf7PBpzz5rhjMHK_or8rJf7PhjiE068YA/pub
   
@@ -59,14 +52,13 @@ Source organization(s)	World Bank
 Link to source organization	http://data.worldbank.org/indicator	
 Palau		This country is not displayed in the graph due to the extremely high percentage of its aid to its GNI
 
-
+Exercise:
 
 ```{r}
 getwd()
 
 setwd("~/career_da-pffs/udacity-eda/eda-course-materials/lesson4")
 ```
-
 
 
 ```{r }
@@ -79,7 +71,6 @@ library(gridExtra)
 library(tidyr)
 
 ```
-
 
 
 ```{r}
@@ -101,22 +92,16 @@ summary(aid_received)
 ```
 
 
-
-
 ### Data cleaning issues:
-1. gather the years and cases to one column each
-http://garrettgman.github.io/tidying/
+1. gather the years and cases to one column each - http://garrettgman.github.io/tidying/
 2. remove missing incomplete cases
 3. correct Column names
-
 
 
 ```{r}
 ### Reshape data - to gather years to year
 aid_received2 <- gather(aid_received, "year", "cases", 2:52)
-
 ```
-
 
 
 ```{r}
@@ -125,7 +110,6 @@ aid_received3 <- aid_received2[complete.cases(aid_received2),]
 
 names(aid_received3)
 ```
-
 
 
 ```{r}
@@ -141,22 +125,16 @@ head(aid_received3)
 ```
 
 
-
-
 ```{r}
 #  Summary stats of donor aid
 summary(aid_received3$donor_aid)
 ```
 
 
-
-
 ```{r}
 #  Histogram of donor aid
 qplot(x = donor_aid, data= aid_received3)
 ```
-
-
 
 
 ```{r}
@@ -171,12 +149,10 @@ p3 <- qplot(x = donor_aid, data= aid_received3, binwidth = 5, ylab = 'p3 % Gni a
 scale_x_continuous(lim = c(0,80), breaks = seq(0, 80, 2))
 grid.arrange(p1, p2, p3, ncol=3)
 ggsave('histobin_changes.png')
-
 ```
 
 ### Observations
 Decreasing the size of the bin increases the clarity of the plots and decreases the values of the y-axes.
-
 Since the distribution is longtailed to the right, it calls for transformation so that we can see the data clearly without the tails!
 
 
@@ -193,19 +169,17 @@ ggsave('histo_transformation.png')
 ```
 
 
-
 ### Questions
-1. Is faceting possible
+1. Is faceting possible - if yes, how?
 
 2.  Can we apply proportions to this exploration - what does it tell us? 
-= no -coz its one distribution only. Proprortions Work for 2 or more, for comparative purposes.
+I think the answer is a no - coz its one distribution only. Proprortions Work for 2 or more, for comparative purposes.
 
-a Histogram needs a continuous x variable; year and country do not meet this requirement.
+A Histogram needs a continuous x variable; year and country do not meet this requirement.
 
 
-###Investigate donor aid using a frequency polygon ?
+###Can we investigate donor aid using a frequency polygon ?
 This is Not necessary because such a graph serves to compare two or more distributions at once
-
 
 
 How do you interpret these values?
@@ -221,36 +195,31 @@ summary(sqrt(aid_received3$donor_aid))
 ```
 
 
-
-
-```{r}
-
-```
-
-?***qplot(x = year, y = donor_aid, data = aid_received3) + 
-      geom = 'boxplot')
-
-### Questions
+### Further Questions
 **1.Boxplot ?  how ? 
- do we need to create factor variables?  how?
+
+qplot(x = year, y = donor_aid, data = aid_received3) + 
+      geom = 'boxplot')
+do we need to create factor variables?  how?
 
 
 **2. dotplot ?  how ? 
+
 qplot(x = donor_aid, data= aid_received3, geom_dotplot()) +
         scale_x_continuous(lim = c(0,75))
+error message was:
 -Don't know how to automatically pick scale for object of type -LayerInstance/Layer/ggproto/gg. Defaulting to continuous.
 -Error: Aesthetics must be either length 1 or the same as the data (5774): x, y
 
 **3. Barplot ?  how ? 
+
 qplot(x = donor_aid, data= aid_received3, geom_bar()) +
         scale_x_continuous(lim = c(0,75))
-        
-***same prob as above
+got same error message as above
 
 
 
-
-or What is the donor_aid range for the middle 50% of 2010?
+### What is the donor_aid range for the middle 50% of 2010? or
 ```{r}
 #How has donor aid changed over the years
 by(aid_received3$donor_aid, aid_received3$year, summary)
@@ -258,14 +227,11 @@ by(aid_received3$donor_aid, aid_received3$year, summary)
 ```
 
 
-or What is the donor aid range for the middle 50% for Uganda?
+### What is the donor aid range for the middle 50% for Uganda? or
 ```{r}
 # How has donor aid changed for countries
 by(aid_received3$donor_aid, aid_received3$country, summary)
-
 ```
-
-
 
 ```{r}
 # Interquartile range
@@ -280,11 +246,9 @@ by(aid_received3$donor_aid, aid_received3$country, IQR)
 
 Interquartile range
 ```{r}
-
 upper_quartile_1960 <- subset(aid_received3, donor_aid >= 10.3 & year == 1960)
 upper_quartile_1960
 ```
-
 
 ```{r}
 upper_quartile_2010 <- subset(aid_received3, donor_aid >= 10.3 & year == 2010)
@@ -293,7 +257,6 @@ upper_quartile_2010
 
 
 ```{r}
-
 max(by(aid_received3$donor_aid, aid_received3$year, IQR))
 #15.74981
 
@@ -312,7 +275,7 @@ min(by(aid_received3$donor_aid, aid_received3$country, IQR))
 # manually - libya(how do i do this progmatically?)
 ```
 
-### Question
+### other Questions
  if I want a table only of donor aid for the year 1960
 say - I want to compare it with that of 2010
 table(aid_received3[aid_received3$year]) == 1960  ???
