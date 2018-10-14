@@ -4,7 +4,9 @@ Livy KMG
 #Gapminder Exercise
 
 The Gapminder website contains over 500 data sets with information about
- the world's population. Your task is to download a data set of your choice
+ the world's population. 
+ 
+ Your task is to download a data set of your choice
  and create 2-5 plots that make use of the techniques from Lesson 3.
 
  You might use a simple histogram, a boxplot split over a categorical variable,
