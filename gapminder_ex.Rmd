@@ -1,0 +1,324 @@
+---
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+---
+Livy KMG
+
+#Gapminder Exercise
+
+The Gapminder website contains over 500 data sets with information about
+ the world's population. Your task is to download a data set of your choice
+ and create 2-5 plots that make use of the techniques from Lesson 3.
+
+ You might use a simple histogram, a boxplot split over a categorical variable,
+ or a frequency polygon. The choice is yours!
+
+ Once you've completed your investigation, create a post in the discussions that includes:
+       1. any questions you answered, your observations, and summary statistics
+       2. snippets of code that created the plots
+       3. links to the images of your plots
+
+ You can save images by using the ggsave() command.
+ ggsave() will save the last plot created.
+ For example...
+                  qplot(x = price, data = diamonds)
+                  ggsave('priceHistogram.png')
+
+ ggsave currently recognises the extensions eps/ps, tex (pictex),
+ pdf, jpeg, tiff, png, bmp, svg and wmf (windows only).
+
+ Copy and paste all of the code that you used for
+ your investigation, and submit it when you are ready.
+
+The following command may be helpful for some of the Gapminder Data sets, once it's been converted to csv format:
+  
+read.csv('data.csv', header = T, row.names = 1, check.names = F). 
+
+You may want to look at additional function arguments in the help file for the read.table() family for additional tools that can help you read in data.
+
+If you want to exchange the rows and columns of your dataframe, it will also be useful to know the transpose function, t().
+ ====================================================================================
+
+#Gapminder Data
+http://www.gapminder.org/data/
+https://docs.google.com/spreadsheets/d/1gJLA2BebcFBf7PBpzz5rhjMHK_or8rJf7PhjiE068YA/pub
+  
+
+Hans Rosling's 200 Countries, 200 Years, 4 Minutes
+https://www.youtube.com/watch?v=jbkSRLYSojo
+
+
+##About the data:
+Aid recieved % of gni
+indicator_aid received % of gni
+Net official development assistance (ODA) consists of disbursements of loans made on concessional terms (net of repayments of principal) and grants by official agencies of the members of the Development Assistance Committee (DAC), by multilateral institutions, and by non-DAC countries to promote economic development and welfare in countries and territories in the DAC list of ODA recipients. It includes loans with a grant element of at least 25 percent (calculated at a rate of discount of 10 percent).
+
+Source organization(s)	World Bank	
+Link to source organization	http://data.worldbank.org/indicator	
+Palau		This country is not displayed in the graph due to the extremely high percentage of its aid to its GNI
+
+
+
+```{r}
+getwd()
+
+setwd("~/career_da-pffs/udacity-eda/eda-course-materials/lesson4")
+```
+
+
+
+```{r }
+#Load necesary Libraries
+library(readxl, quietly=TRUE)
+library(reshape2)
+library(plyr)
+library(ggplot2)
+library(gridExtra)
+library(tidyr)
+
+```
+
+
+
+```{r}
+#Read in the data
+aid_received <- read_excel('aid_received.xlsx')
+```
+
+
+
+```{r}
+#Explore data
+names(aid_received)
+
+str(aid_received)
+
+dim(aid_received)
+
+summary(aid_received)
+```
+
+
+
+
+### Data cleaning issues:
+1. gather the years and cases to one column each
+http://garrettgman.github.io/tidying/
+2. remove missing incomplete cases
+3. correct Column names
+
+
+
+```{r}
+### Reshape data - to gather years to year
+aid_received2 <- gather(aid_received, "year", "cases", 2:52)
+
+```
+
+
+
+```{r}
+### Remove Missing values
+aid_received3 <- aid_received2[complete.cases(aid_received2),]
+
+names(aid_received3)
+```
+
+
+
+```{r}
+### Correct column names 
+colnames(aid_received3)[3] <- "donor_aid"
+colnames(aid_received3)[1] <- "country"
+
+# Check the column names
+colnames(aid_received3)
+
+# check the dataset
+head(aid_received3)
+```
+
+
+
+
+```{r}
+#  Summary stats of donor aid
+summary(aid_received3$donor_aid)
+```
+
+
+
+
+```{r}
+#  Histogram of donor aid
+qplot(x = donor_aid, data= aid_received3)
+```
+
+
+
+
+```{r}
+#  investigating Histogram by binwidth and limiting the axes
+p1 <- qplot(x = donor_aid, data= aid_received3, binwidth = 1, ylab = 'p1 % Gni aid' ) + 
+scale_x_continuous(lim = c(0,80), breaks = seq(0, 80, 3))
+
+p2 <- qplot(x = donor_aid, data= aid_received3, binwidth = 3, ylab = 'p2 % Gni aid' ) + 
+scale_x_continuous(lim = c(0,80), breaks = seq(0, 80, 3))
+
+p3 <- qplot(x = donor_aid, data= aid_received3, binwidth = 5, ylab = 'p3 % Gni aid') +
+scale_x_continuous(lim = c(0,80), breaks = seq(0, 80, 2))
+grid.arrange(p1, p2, p3, ncol=3)
+ggsave('histobin_changes.png')
+
+```
+
+### Observations
+Decreasing the size of the bin increases the clarity of the plots and decreases the values of the y-axes.
+
+Since the distribution is longtailed to the right, it calls for transformation so that we can see the data clearly without the tails!
+
+
+```{r}
+# Transormation using log10 and sqrt
+# Add a Scaling Layer
+
+p1 <- qplot(x = donor_aid, data= aid_received3, binwidth = 1) 
+p2 <- p1 + scale_x_log10()
+p3 <- p1 + scale_x_sqrt()
+
+grid.arrange(p1,p2,p3, ncol = 1)
+ggsave('histo_transformation.png')
+```
+
+
+
+### Questions
+1. Is faceting possible
+
+2.  Can we apply proportions to this exploration - what does it tell us? 
+= no -coz its one distribution only. Proprortions Work for 2 or more, for comparative purposes.
+
+a Histogram needs a continuous x variable; year and country do not meet this requirement.
+
+
+###Investigate donor aid using a frequency polygon ?
+This is Not necessary because such a graph serves to compare two or more distributions at once
+
+
+
+How do you interpret these values?
+```{r}
+#Summary stats of donor aid and transformed data
+
+summary(aid_received3$donor_aid)
+
+summary(log10(aid_received3$donor_aid + 1))
+
+summary(sqrt(aid_received3$donor_aid))
+
+```
+
+
+
+
+```{r}
+
+```
+
+?***qplot(x = year, y = donor_aid, data = aid_received3) + 
+      geom = 'boxplot')
+
+### Questions
+**1.Boxplot ?  how ? 
+ do we need to create factor variables?  how?
+
+
+**2. dotplot ?  how ? 
+qplot(x = donor_aid, data= aid_received3, geom_dotplot()) +
+        scale_x_continuous(lim = c(0,75))
+-Don't know how to automatically pick scale for object of type -LayerInstance/Layer/ggproto/gg. Defaulting to continuous.
+-Error: Aesthetics must be either length 1 or the same as the data (5774): x, y
+
+**3. Barplot ?  how ? 
+qplot(x = donor_aid, data= aid_received3, geom_bar()) +
+        scale_x_continuous(lim = c(0,75))
+        
+***same prob as above
+
+
+
+
+or What is the donor_aid range for the middle 50% of 2010?
+```{r}
+#How has donor aid changed over the years
+by(aid_received3$donor_aid, aid_received3$year, summary)
+
+```
+
+
+or What is the donor aid range for the middle 50% for Uganda?
+```{r}
+# How has donor aid changed for countries
+by(aid_received3$donor_aid, aid_received3$country, summary)
+
+```
+
+
+
+```{r}
+# Interquartile range
+by(aid_received3$donor_aid, aid_received3$year, IQR)
+```
+
+```{r}
+# Interquartile range
+by(aid_received3$donor_aid, aid_received3$country, IQR)
+```
+
+
+Interquartile range
+```{r}
+
+upper_quartile_1960 <- subset(aid_received3, donor_aid >= 10.3 & year == 1960)
+upper_quartile_1960
+```
+
+
+```{r}
+upper_quartile_2010 <- subset(aid_received3, donor_aid >= 10.3 & year == 2010)
+upper_quartile_2010
+```
+
+
+```{r}
+
+max(by(aid_received3$donor_aid, aid_received3$year, IQR))
+#15.74981
+
+min(by(aid_received3$donor_aid, aid_received3$year, IQR))
+#3.364176
+```
+
+
+```{r}
+max(by(aid_received3$donor_aid, aid_received3$country, IQR))
+#51.04485
+#looked up =  Timor-Leste (how to do this progmatically)
+
+min(by(aid_received3$donor_aid, aid_received3$country, IQR))
+# 0.0118714)
+# manually - libya(how do i do this progmatically?)
+```
+
+### Question
+ if I want a table only of donor aid for the year 1960
+say - I want to compare it with that of 2010
+table(aid_received3[aid_received3$year]) == 1960  ???
+
+
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
